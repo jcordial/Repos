@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
  * Class Repository
  * @package Daveawb\Repos
  */
-abstract class Repository implements RepositoryStandards, AllowCriteria, AllowTerminators {
+abstract class Repository implements RepositoryStandards, AllowCriteria {
 
     /**
      * @var \Illuminate\Database\Eloquent\Model
@@ -193,12 +193,19 @@ abstract class Repository implements RepositoryStandards, AllowCriteria, AllowTe
     }
 
     /**
-     * @param Criteria $criteria
+     * @param mixed $criteria
      * @return $this
      */
-    public function getByCriteria(Criteria $criteria)
+    public function getByCriteria($criteria)
     {
-        $this->model = $criteria->apply($this->model, $this);
+        if (is_callable($criteria)) {
+
+            call_user_func($criteria, $this->model);
+
+        } elseif ($criteria instanceof Criteria) {
+
+            $this->model = $criteria->apply($this->model, $this);
+        }
 
         return $this;
     }
@@ -207,7 +214,7 @@ abstract class Repository implements RepositoryStandards, AllowCriteria, AllowTe
      * @param Criteria $criteria
      * @return $this
      */
-    public function pushCriteria(Criteria $criteria)
+    public function pushCriteria($criteria)
     {
         $this->criteria->push($criteria);
 
@@ -228,19 +235,5 @@ abstract class Repository implements RepositoryStandards, AllowCriteria, AllowTe
         }
 
         return $this;
-    }
-
-    /**
-     * Retrieve results using a terminator expression.
-     * This special type of criteria will return a
-     * result set rather than modifying the model/builder.
-     *
-     * @param Terminator $terminator
-     *
-     * @return mixed
-     */
-    public function findByTerminator(Terminator $terminator)
-    {
-        return $terminator->apply($this->model, $this);
     }
 }

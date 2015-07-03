@@ -22,16 +22,16 @@ interface AllowCriteria {
     public function getCriteria();
 
     /**
-     * @param Criteria $criteria
+     * @param mixed $criteria
      * @return $this
      */
-    public function getByCriteria(Criteria $criteria);
+    public function getByCriteria($criteria);
 
     /**
-     * @param Criteria $criteria
+     * @param mixed $criteria
      * @return $this
      */
-    public function pushCriteria(Criteria $criteria);
+    public function pushCriteria($criteria);
 
     /**
      * @return $this

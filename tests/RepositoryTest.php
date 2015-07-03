@@ -16,30 +16,14 @@ class RepositoryTest extends TestCase {
 
     protected function getEnvironmentSetUp($app)
     {
-        $app['config']->set('database.default', 'tests');
-        $app['config']->set('database.connections.tests', [
-            'driver'   => 'sqlite',
-            'database' => ':memory:',
-            'prefix'   => '',
-        ]);
+        Boot::before($app);
     }
 
     public function setUp()
     {
         parent::setUp();
 
-        $this->artisan('migrate', [
-            '--database' => 'tests',
-            '--realpath' => realpath(__DIR__.'/migrations'),
-        ]);
-
-        Classes\User::create([
-            "first_name" => "David",
-            "last_name" => "Barker",
-            "username" => "daveawb",
-            "email" => "daveawb@hotmail.com",
-            "password" => 'secret'
-        ]);
+        Boot::migrate($this);
 
         DB::beginTransaction();
     }
@@ -243,14 +227,19 @@ class RepositoryTest extends TestCase {
         $this->assertInstanceOf('Illuminate\Database\Eloquent\Model', $data);
     }
 
-    public function testRepositoryGetsByTerminableCriteria()
+    public function testRepositoryAcceptsCriteriaAsClosure()
     {
         $repo = $this->repoFactory();
 
-        $data = $repo->findByTerminator(new UsernameTerminator());
+        $repo->pushCriteria(function($query)
+        {
+            $query->where('username', 'daveawb')
+                ->orderBy('username');
+        });
+
+        $data = $repo->findBy('id', 1, ['id', 'username']);
 
         $this->assertInstanceOf('Illuminate\Database\Eloquent\Model', $data);
-        $this->assertEquals('daveawb', $data->username);
     }
 
     private function repoFactory()
