@@ -231,9 +231,9 @@ class RepositoryTest extends TestCase {
     {
         $repo = $this->repoFactory();
 
-        $repo->pushCriteria(function($query)
+        $repo->pushCriteria(function($model)
         {
-            $query->where('username', 'daveawb')
+            return $model->where('username', 'daveawb')
                 ->orderBy('username');
         });
 

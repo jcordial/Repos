@@ -200,7 +200,7 @@ abstract class Repository implements RepositoryStandards, AllowCriteria {
     {
         if (is_callable($criteria)) {
 
-            call_user_func($criteria, $this->model);
+            $this->model = call_user_func($criteria, $this->model);
 
         } elseif ($criteria instanceof Criteria) {
 
